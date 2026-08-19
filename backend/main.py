@@ -89,3 +89,20 @@ async def stream_summary(websocket: WebSocket, interval: float = DEFAULT_STREAM_
             await websocket.close()
         except RuntimeError:
             pass
+
+
+if __name__ == "__main__":
+    # Exercises cpu.py/gpu.py/containers.py directly - no uvicorn, no frontend.
+    # Run with: python main.py
+    async def _smoke_test() -> None:
+        cpu.prime()
+        gpu.initialize()
+        containers.initialize()
+        try:
+            summary_data = await get_summary()
+            print(summary_data.model_dump_json(indent=2))
+        finally:
+            gpu.shutdown()
+            containers.shutdown()
+
+    asyncio.run(_smoke_test())
