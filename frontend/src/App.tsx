@@ -44,10 +44,10 @@ function App() {
       <main className="dashboard-grid">
         {data ? (
           <>
-            <CpuPanel cpu={data.system.cpu} history={history.cpu} />
+            <CpuPanel cpu={data.system.cpu} history={history.cpu} intervalSeconds={intervalSeconds} />
             <MemoryPanel memory={data.system.memory} history={history.memory} />
             <DiskPanel disk={data.system.disk} />
-            <GpuPanel gpu={data.gpu} utilHistory={history.gpuUtil} />
+            <GpuPanel gpu={data.gpu} utilHistory={history.gpuUtil} intervalSeconds={intervalSeconds} />
             <DockerPanel docker={data.docker} />
           </>
         ) : (

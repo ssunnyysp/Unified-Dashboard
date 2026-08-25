@@ -8,9 +8,10 @@ import { formatMb } from '../lib/format'
 interface GpuPanelProps {
   gpu: GPUSnapshot
   utilHistory: number[]
+  intervalSeconds: number
 }
 
-export function GpuPanel({ gpu, utilHistory }: GpuPanelProps) {
+export function GpuPanel({ gpu, utilHistory, intervalSeconds }: GpuPanelProps) {
   if (!gpu.available) {
     return (
       <MetricCard title="GPU">
@@ -37,13 +38,19 @@ export function GpuPanel({ gpu, utilHistory }: GpuPanelProps) {
             </div>
 
             {idx === 0 ? (
-              <TrendChart values={utilHistory} color="var(--status-good)" gradientId="gpu-trend-fill" />
+              <TrendChart
+                values={utilHistory}
+                color="var(--status-good)"
+                gradientId="gpu-trend-fill"
+                title="GPU compute utilization"
+                windowSeconds={utilHistory.length * intervalSeconds}
+              />
             ) : (
               <UsageBar percent={g.gpu_utilization_pct} />
             )}
 
-            <div className="stat-row-label">
-              VRAM {formatMb(g.memory_used_mb)} / {formatMb(g.memory_total_mb)}
+            <div className="section-label">
+              VRAM (video memory) — {formatMb(g.memory_used_mb)} used of {formatMb(g.memory_total_mb)}
             </div>
             <UsageBar percent={vramPercent} />
 

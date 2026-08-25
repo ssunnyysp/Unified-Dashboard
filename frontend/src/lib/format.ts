@@ -18,6 +18,12 @@ export function formatUptime(seconds: number): string {
   return parts.join(' ')
 }
 
+export function formatDuration(totalSeconds: number): string {
+  if (totalSeconds < 60) return `${Math.round(totalSeconds)}s`
+  const minutes = totalSeconds / 60
+  return minutes >= 10 ? `${Math.round(minutes)}m` : `${minutes.toFixed(1)}m`
+}
+
 export function formatRelativeTime(sinceMs: number | null): string {
   if (sinceMs === null) return '—'
   const seconds = Math.max(0, Math.round((Date.now() - sinceMs) / 1000))

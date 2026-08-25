@@ -5,14 +5,16 @@ import { TrendChart } from './TrendChart'
 interface CpuPanelProps {
   cpu: CPUStats
   history: number[]
+  intervalSeconds: number
 }
 
-export function CpuPanel({ cpu, history }: CpuPanelProps) {
+export function CpuPanel({ cpu, history, intervalSeconds }: CpuPanelProps) {
   const cores = cpu.core_count_physical ?? '—'
   const threads = cpu.core_count_logical ?? '—'
+  const threadCount = cpu.percent_per_core.length
 
   return (
-    <MetricCard title="CPU" subtitle={`${cores}c / ${threads}t`}>
+    <MetricCard title="CPU" subtitle={`${cores} physical cores / ${threads} threads`}>
       <div className="metric-readout">
         <span className="metric-value">
           {cpu.percent_total.toFixed(0)}
@@ -20,13 +22,23 @@ export function CpuPanel({ cpu, history }: CpuPanelProps) {
         </span>
       </div>
 
-      <TrendChart values={history} color="var(--accent)" gradientId="cpu-trend-fill" />
+      <TrendChart
+        values={history}
+        color="var(--accent)"
+        gradientId="cpu-trend-fill"
+        title="Total CPU utilization"
+        windowSeconds={history.length * intervalSeconds}
+      />
 
+      <div className="section-label">
+        Per-thread utilization ({threadCount} logical processors
+        {typeof cores === 'number' && cores !== threadCount ? ` — ${cores} physical cores with SMT/Hyper-Threading` : ''})
+      </div>
       <div className="core-grid">
         {cpu.percent_per_core.map((pct, i) => (
           <div key={i} className="core-cell">
             <div className="core-cell-header">
-              <span>C{i}</span>
+              <span>T{i}</span>
               <span className="core-cell-pct">{pct.toFixed(0)}%</span>
             </div>
             <div className="usage-bar core-cell-bar" data-tone={pct >= 85 ? 'bad' : pct >= 60 ? 'warn' : 'good'}>
