@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { DashboardSummary } from '../api/types'
 
-const MAX_POINTS = 40
+const MAX_POINTS = 60
 
 interface SummaryHistory {
   cpu: number[]

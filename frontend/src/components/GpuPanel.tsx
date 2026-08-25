@@ -1,7 +1,7 @@
 import type { GPUSnapshot } from '../api/types'
 import { MetricCard } from './MetricCard'
 import { UsageBar } from './UsageBar'
-import { Sparkline } from './Sparkline'
+import { TrendChart } from './TrendChart'
 import { EmptyState } from './EmptyState'
 import { formatMb } from '../lib/format'
 
@@ -34,9 +34,13 @@ export function GpuPanel({ gpu, utilHistory }: GpuPanelProps) {
                 {g.gpu_utilization_pct.toFixed(0)}
                 <span className="metric-unit">%</span>
               </span>
-              {idx === 0 && <Sparkline values={utilHistory} color="var(--status-good)" />}
             </div>
-            <UsageBar percent={g.gpu_utilization_pct} />
+
+            {idx === 0 ? (
+              <TrendChart values={utilHistory} color="var(--status-good)" gradientId="gpu-trend-fill" />
+            ) : (
+              <UsageBar percent={g.gpu_utilization_pct} />
+            )}
 
             <div className="stat-row-label">
               VRAM {formatMb(g.memory_used_mb)} / {formatMb(g.memory_total_mb)}

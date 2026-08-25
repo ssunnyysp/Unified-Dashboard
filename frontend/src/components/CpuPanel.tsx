@@ -1,7 +1,6 @@
 import type { CPUStats } from '../api/types'
 import { MetricCard } from './MetricCard'
-import { UsageBar } from './UsageBar'
-import { Sparkline } from './Sparkline'
+import { TrendChart } from './TrendChart'
 
 interface CpuPanelProps {
   cpu: CPUStats
@@ -19,14 +18,20 @@ export function CpuPanel({ cpu, history }: CpuPanelProps) {
           {cpu.percent_total.toFixed(0)}
           <span className="metric-unit">%</span>
         </span>
-        <Sparkline values={history} />
       </div>
-      <UsageBar percent={cpu.percent_total} />
 
-      <div className="core-grid" title={cpu.percent_per_core.map((p, i) => `core ${i}: ${p.toFixed(0)}%`).join(', ')}>
+      <TrendChart values={history} color="var(--accent)" gradientId="cpu-trend-fill" />
+
+      <div className="core-grid">
         {cpu.percent_per_core.map((pct, i) => (
-          <div key={i} className="core-bar">
-            <div className="core-bar-fill" style={{ height: `${Math.min(Math.max(pct, 0), 100)}%` }} />
+          <div key={i} className="core-cell">
+            <div className="core-cell-header">
+              <span>C{i}</span>
+              <span className="core-cell-pct">{pct.toFixed(0)}%</span>
+            </div>
+            <div className="usage-bar core-cell-bar" data-tone={pct >= 85 ? 'bad' : pct >= 60 ? 'warn' : 'good'}>
+              <div className="usage-bar-fill" style={{ width: `${Math.min(Math.max(pct, 0), 100)}%` }} />
+            </div>
           </div>
         ))}
       </div>
