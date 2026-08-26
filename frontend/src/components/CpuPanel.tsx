@@ -27,7 +27,7 @@ export function CpuPanel({ cpu, history, intervalSeconds }: CpuPanelProps) {
         color="var(--accent)"
         gradientId="cpu-trend-fill"
         title="Total CPU utilization"
-        windowSeconds={history.length * intervalSeconds}
+        intervalSeconds={intervalSeconds}
       />
 
       <div className="section-label">

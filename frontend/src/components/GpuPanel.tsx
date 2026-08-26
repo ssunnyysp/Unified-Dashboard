@@ -43,7 +43,7 @@ export function GpuPanel({ gpu, utilHistory, intervalSeconds }: GpuPanelProps) {
                 color="var(--status-good)"
                 gradientId="gpu-trend-fill"
                 title="GPU compute utilization"
-                windowSeconds={utilHistory.length * intervalSeconds}
+                intervalSeconds={intervalSeconds}
               />
             ) : (
               <UsageBar percent={g.gpu_utilization_pct} />
