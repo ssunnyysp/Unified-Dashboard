@@ -33,11 +33,19 @@ class CPUStats(BaseModel):
     freq_max_mhz: float | None = None
 
 
+class ProcessMemoryStats(BaseModel):
+    name: str
+    process_count: int
+    memory_mb: float
+    percent: float
+
+
 class MemoryStats(BaseModel):
     total_mb: float
     available_mb: float
     used_mb: float
     percent: float
+    top_processes: list[ProcessMemoryStats] = []
 
 
 class DiskStats(BaseModel):
