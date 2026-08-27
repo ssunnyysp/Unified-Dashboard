@@ -5,14 +5,20 @@ import { Sparkline } from './Sparkline'
 import { TopProcessList } from './TopProcessList'
 import { formatMb } from '../lib/format'
 
+const COMPACT_PROCESS_COUNT = 5
+
 interface MemoryPanelProps {
   memory: MemoryStats
   history: number[]
+  detailed?: boolean
+  onExpand?: () => void
 }
 
-export function MemoryPanel({ memory, history }: MemoryPanelProps) {
+export function MemoryPanel({ memory, history, detailed, onExpand }: MemoryPanelProps) {
+  const processes = detailed ? memory.top_processes : memory.top_processes.slice(0, COMPACT_PROCESS_COUNT)
+
   return (
-    <MetricCard title="Memory" subtitle={formatMb(memory.total_mb)}>
+    <MetricCard title="Memory" subtitle={formatMb(memory.total_mb)} expanded={detailed} onClick={onExpand}>
       <div className="metric-readout">
         <span className="metric-value">
           {memory.percent.toFixed(0)}
@@ -34,7 +40,7 @@ export function MemoryPanel({ memory, history }: MemoryPanelProps) {
       </dl>
 
       <div className="section-label">Top memory consumers</div>
-      <TopProcessList processes={memory.top_processes} />
+      <TopProcessList processes={processes} />
     </MetricCard>
   )
 }

@@ -9,29 +9,32 @@ interface TrendChartProps {
   title: string
   /** Seconds between samples - used both for the "last Xm" caption and per-point hover times. */
   intervalSeconds: number
+  /** SVG viewBox height in px - taller in the full-screen detail view. */
+  height?: number
 }
 
 const VIEW_W = 320
-const VIEW_H = 112
 const PAD_LEFT = 30
 const PAD_TOP = 8
 const PAD_BOTTOM = 8
 const CHART_W = VIEW_W - PAD_LEFT
-const CHART_H = VIEW_H - PAD_TOP - PAD_BOTTOM
 const GRID_LINES = [
   { value: 0, label: '0' },
   { value: 50, label: '50' },
   { value: 100, label: '100%' },
 ]
 
-function yFor(value: number, max: number): number {
-  const clamped = Math.min(Math.max(value, 0), max)
-  return PAD_TOP + CHART_H - (clamped / max) * CHART_H
-}
-
-export function TrendChart({ values, max = 100, color, gradientId, title, intervalSeconds }: TrendChartProps) {
+export function TrendChart({ values, max = 100, color, gradientId, title, intervalSeconds, height = 112 }: TrendChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
-  const gridLines = GRID_LINES.map((g) => ({ ...g, y: yFor(g.value, max) }))
+  const viewH = height
+  const chartH = viewH - PAD_TOP - PAD_BOTTOM
+
+  function yFor(value: number): number {
+    const clamped = Math.min(Math.max(value, 0), max)
+    return PAD_TOP + chartH - (clamped / max) * chartH
+  }
+
+  const gridLines = GRID_LINES.map((g) => ({ ...g, y: yFor(g.value) }))
   const windowSeconds = values.length * intervalSeconds
 
   const caption = (
@@ -45,7 +48,7 @@ export function TrendChart({ values, max = 100, color, gradientId, title, interv
     return (
       <div className="trend-block">
         {caption}
-        <svg className="trend-chart" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none">
+        <svg className="trend-chart" viewBox={`0 0 ${VIEW_W} ${viewH}`} style={{ height: viewH }} preserveAspectRatio="none">
           {gridLines.map(({ value, label, y }) => (
             <g key={value}>
               <line x1={PAD_LEFT} x2={VIEW_W} y1={y} y2={y} className="trend-grid-line" />
@@ -60,11 +63,11 @@ export function TrendChart({ values, max = 100, color, gradientId, title, interv
   }
 
   const step = CHART_W / (values.length - 1)
-  const coords = values.map((v, i) => [PAD_LEFT + i * step, yFor(v, max)] as const)
+  const coords = values.map((v, i) => [PAD_LEFT + i * step, yFor(v)] as const)
   const linePath = coords.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
   const [firstX] = coords[0]
   const [lastX, lastY] = coords[coords.length - 1]
-  const areaPath = `${linePath} L${lastX.toFixed(1)},${PAD_TOP + CHART_H} L${firstX.toFixed(1)},${PAD_TOP + CHART_H} Z`
+  const areaPath = `${linePath} L${lastX.toFixed(1)},${PAD_TOP + chartH} L${firstX.toFixed(1)},${PAD_TOP + chartH} Z`
 
   function handleMove(event: MouseEvent<SVGRectElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -87,7 +90,7 @@ export function TrendChart({ values, max = 100, color, gradientId, title, interv
       {caption}
 
       <div className="trend-chart-wrap">
-        <svg className="trend-chart" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none">
+        <svg className="trend-chart" viewBox={`0 0 ${VIEW_W} ${viewH}`} style={{ height: viewH }} preserveAspectRatio="none">
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity="0.28" />
@@ -116,7 +119,7 @@ export function TrendChart({ values, max = 100, color, gradientId, title, interv
           />
 
           {hovered && (
-            <line x1={hovered.x} x2={hovered.x} y1={PAD_TOP} y2={PAD_TOP + CHART_H} className="trend-hover-line" />
+            <line x1={hovered.x} x2={hovered.x} y1={PAD_TOP} y2={PAD_TOP + chartH} className="trend-hover-line" />
           )}
 
           <circle cx={lastX} cy={lastY} r="3" fill={color} className="trend-dot" />
@@ -129,7 +132,7 @@ export function TrendChart({ values, max = 100, color, gradientId, title, interv
             x={PAD_LEFT}
             y={0}
             width={CHART_W}
-            height={VIEW_H}
+            height={viewH}
             fill="transparent"
             onMouseMove={handleMove}
             onMouseLeave={() => setHoverIndex(null)}

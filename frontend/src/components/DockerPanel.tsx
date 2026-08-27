@@ -15,10 +15,16 @@ function containerTitle(container: ContainerStats): string | undefined {
   return `created ${new Date(container.created).toLocaleString()}`
 }
 
-export function DockerPanel({ docker }: { docker: DockerSnapshot }) {
+interface DockerPanelProps {
+  docker: DockerSnapshot
+  detailed?: boolean
+  onExpand?: () => void
+}
+
+export function DockerPanel({ docker, detailed, onExpand }: DockerPanelProps) {
   if (!docker.available) {
     return (
-      <MetricCard title="Docker" wide>
+      <MetricCard title="Docker" wide expanded={detailed} onClick={onExpand}>
         <EmptyState message={docker.error ?? 'Docker daemon unreachable.'} />
       </MetricCard>
     )
@@ -26,7 +32,7 @@ export function DockerPanel({ docker }: { docker: DockerSnapshot }) {
 
   if (docker.containers.length === 0) {
     return (
-      <MetricCard title="Docker" wide subtitle="0 containers">
+      <MetricCard title="Docker" wide subtitle="0 containers" expanded={detailed} onClick={onExpand}>
         <EmptyState message="No containers found." />
       </MetricCard>
     )
@@ -37,6 +43,8 @@ export function DockerPanel({ docker }: { docker: DockerSnapshot }) {
       title="Docker"
       wide
       subtitle={`${docker.containers.length} container${docker.containers.length === 1 ? '' : 's'}`}
+      expanded={detailed}
+      onClick={onExpand}
     >
       <table className="container-table">
         <thead>

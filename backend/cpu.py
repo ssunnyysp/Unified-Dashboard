@@ -8,7 +8,7 @@ from models import CPUStats, DiskStats, MemoryStats, ProcessMemoryStats, SystemS
 
 _BOOT_TIME = psutil.boot_time()
 _DEFAULT_DISK_PATH = "C:\\"
-_TOP_PROCESS_COUNT = 5
+_TOP_PROCESS_COUNT = 10
 _TOP_PROCESS_CACHE_SECONDS = 5.0
 
 _top_process_cache: list[ProcessMemoryStats] = []

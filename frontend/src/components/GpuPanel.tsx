@@ -9,9 +9,13 @@ interface GpuPanelProps {
   gpu: GPUSnapshot
   utilHistory: number[]
   intervalSeconds: number
+  detailed?: boolean
+  /** Render only this GPU's card (by its NVML index) - used by the full-screen detail view. */
+  onlyIndex?: number
+  onExpand?: (index: number) => void
 }
 
-export function GpuPanel({ gpu, utilHistory, intervalSeconds }: GpuPanelProps) {
+export function GpuPanel({ gpu, utilHistory, intervalSeconds, detailed, onlyIndex, onExpand }: GpuPanelProps) {
   if (!gpu.available) {
     return (
       <MetricCard title="GPU">
@@ -20,15 +24,23 @@ export function GpuPanel({ gpu, utilHistory, intervalSeconds }: GpuPanelProps) {
     )
   }
 
+  const gpusToRender = onlyIndex === undefined ? gpu.gpus : gpu.gpus.filter((g) => g.index === onlyIndex)
+
   return (
     <>
-      {gpu.gpus.map((g, idx) => {
+      {gpusToRender.map((g) => {
         const vramPercent = (g.memory_used_mb / g.memory_total_mb) * 100
+        // utilHistory only ever tracks the primary GPU (index 0) - see useSummaryHistory -
+        // so the trend chart must key off the GPU's own index, not its position in this
+        // (possibly filtered) array, or a secondary GPU's card would show GPU 0's history.
+        const isPrimary = g.index === 0
         return (
           <MetricCard
             key={g.uuid}
             title={gpu.gpus.length > 1 ? `GPU ${g.index}` : 'GPU'}
             subtitle={g.name}
+            expanded={detailed}
+            onClick={onExpand ? () => onExpand(g.index) : undefined}
           >
             <div className="metric-readout">
               <span className="metric-value">
@@ -37,13 +49,14 @@ export function GpuPanel({ gpu, utilHistory, intervalSeconds }: GpuPanelProps) {
               </span>
             </div>
 
-            {idx === 0 ? (
+            {isPrimary ? (
               <TrendChart
                 values={utilHistory}
                 color="var(--status-good)"
-                gradientId="gpu-trend-fill"
+                gradientId={detailed ? 'gpu-trend-fill-detail' : 'gpu-trend-fill'}
                 title="GPU compute utilization"
                 intervalSeconds={intervalSeconds}
+                height={detailed ? 220 : 112}
               />
             ) : (
               <UsageBar percent={g.gpu_utilization_pct} />
