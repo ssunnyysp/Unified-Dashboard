@@ -3,9 +3,15 @@ import { MetricCard } from './MetricCard'
 import { UsageBar } from './UsageBar'
 import { formatGb } from '../lib/format'
 
-export function DiskPanel({ disk }: { disk: DiskStats }) {
+interface DiskPanelProps {
+  disk: DiskStats
+  detailed?: boolean
+  onExpand?: () => void
+}
+
+export function DiskPanel({ disk, detailed, onExpand }: DiskPanelProps) {
   return (
-    <MetricCard title="Disk" subtitle={disk.path}>
+    <MetricCard title="Disk" subtitle={disk.path} expanded={detailed} onClick={onExpand}>
       <div className="metric-readout">
         <span className="metric-value">
           {disk.percent.toFixed(0)}

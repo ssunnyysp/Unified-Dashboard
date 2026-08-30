@@ -7,11 +7,19 @@ export interface CPUStats {
   freq_max_mhz: number | null
 }
 
+export interface ProcessMemoryStats {
+  name: string
+  process_count: number
+  memory_mb: number
+  percent: number
+}
+
 export interface MemoryStats {
   total_mb: number
   available_mb: number
   used_mb: number
   percent: number
+  top_processes: ProcessMemoryStats[]
 }
 
 export interface DiskStats {
